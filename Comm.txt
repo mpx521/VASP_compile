@@ -1,0 +1,79 @@
+
+Last login: Mon Jul 6 11:43:03 +0800 2026 from 155.69.169.66
+[keatping@asp2a-login-ntu01 ~]$ history
+    1  qstat -f -Q
+    2  module avail
+    3  cd VASP/
+    4  tar -xzvf vasp.6.5.1.tgz
+    5  module avail
+    6  module show intel/2022.1.0
+    7  /app/apps/oneapi/2022.2.0/compiler/2022.1.0/
+    8  cd
+    9  /app/apps/oneapi/2022.2.0/compiler/2022.1.0/
+   10  source /app/apps/oneapi/2022.2.0/compiler/2022.1.0
+   11  source /app/apps/oneapi/2022.2.0/compiler/2022.1.0/env/vars.sh
+   12  find /app/apps/oneapi/2022.2.0/compiler/2022.1.0 -type f -name "setvars.sh"
+   13  find /app/apps/oneapi/2022.2.0/compiler/2022.1.0 -type f -name "setvars"
+   14  module ava init
+   15  module ava intel
+   16  module show intel-oneapi/2022.1.0
+   17  module load intel-oneapi/2022.1.0
+   18  mpi
+   19  module load intel/2022.1.0
+   20  module unload intel/2022.1.0
+   21  module load intel-oneapi/2022.1.0
+   22  mpi
+   23  find show intel-oneapi/2022.1.0
+   24  cd /app/apps/oneapi/2022.2.0/
+   25  ls
+   26  pwd
+   27  source /app/apps/oneapi/2022.2.0/setvars.sh
+   28  which mpirum
+   29  which mpi
+   30  ic
+   31  icp
+   32  cd
+   33  ls
+   34  cd VASP/
+   35  cd vasp.6.5.1/
+   36  ls
+   37  ls bin/
+   38  ls
+   39  cd ./
+   40  cd ../
+   41  mv vasp.6.5.1 vasp.6.5.1.bak
+   42  tar xf vasp.6.5.1.tgz
+   43  cd vasp.6.5.1
+   44  ls
+   45  cd arch/makefile.include.intel makefile.include
+   46  cp arch/makefile.include.intel makefile.include
+   47  vim makefile.include
+（这一步改VASP_TARGET_CPU ?= -march=core-avx2）
+   48  lscpw
+   49  lscpu
+   50  make std -j 8
+   51  make all -j 8
+   52  make veryclean
+   53  make std
+   54  ls
+   55  pwd
+   56  cd ../
+   57  vim vasp_env.sh
+   58  ls
+   59  cd vasp.6.5.1
+   60  cd ../
+   61  vim vasp_env.sh
+   62  cd vasp.6.5.1
+   63  cd bin/
+   64  pwd
+   65  cd ../
+   66  vim vasp_env.sh
+   67  source vasp_env.sh
+   68  which vasp_std
+   69  which mpirun
+   70  cat vasp_env.sh
+   71  ls
+   72  cat vasp_env.sh
+   73  ls
+   74  history
+[keatping@asp2a-login-ntu01 ~]$
