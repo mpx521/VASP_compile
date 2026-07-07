@@ -1,0 +1,1 @@
+Python make_neb_images.py POSCAR1 POSCAR2 -n 3(images number) --moving-elements C,O (the specific elements to move) 
