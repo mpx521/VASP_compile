@@ -1,1 +1,333 @@
-Dear CP-VASP users,We are excited to release CP-VASP 2.0! Here are some key features:1. Support both vaspsol and vaspsol++2. Flash solvation method to avoid flying water problem in MD3. "True" grand canonical ensemble for electron dynamicsThe patch file can be accessed here:https://drive.google.com/drive/folders/13qTSTIRgWM6RhvcxgeRISVitz7z8jJLr?usp=drive_linkThe user manual and examples are available at https://github.com/yuanyue-liu-group/CP-VASP/tree/mainFor any questions or feedback, please report at https://github.com/yuanyue-liu-group/CP-VASP/issuesSincerely,Yuanyue Liu groupThe University of Texas at Austinhttps://sites.utexas.edu/yuanyue-liu/HPC¾ßÌå°²×°Ö¸Áî£ºcd /home/qizhao/srcgit clone https://github.com/henniggroup/VASPsol.gitecho "===== È·ÈÏÎÄ¼ş´æÔÚ ====="ls -lh VASPsol/src/solvation.Fecho "===== ²é¿´ÓĞÄÄĞ©°æ±¾²¹¶¡ ====="ls VASPsol/patches/echo "===== ÕæÕıµÄ solvation.F ĞĞÊı ====="wc -l VASPsol/src/solvation.Fcd /home/qizhao/src/vasp.6.4.2_mybuild/srcecho "===== 1. ±¸·İµ±Ç°(¿Õ¿Ç)solvation.F ====="cp solvation.F solvation.F.stub_backupecho "===== 2. »»³ÉÕæÕıµÄ VASPsol °æ±¾ ====="cp /home/qizhao/src/VASPsol/src/solvation.F .wc -l solvation.Fecho "===== 3. ¼ì²éÓĞÃ»ÓĞ sol_compat ±àÒëÑ¡Ïî ====="grep -n "sol_compat" /home/qizhao/src/vasp.6.4.2_mybuild/arch/*.include 2>/dev/nullgrep -rn "sol_compat" /home/qizhao/src/vasp.6.4.2_mybuild/makefile.include 2>/dev/nullecho "===== 4. ¼ì²é solvation.o ÔÚ pot.o Ö®Ç° ====="grep -n "solvation.o\|pot.o" /home/qizhao/src/vasp.6.4.2_mybuild/src/.objects | head -20echo "===== 5. ³¢ÊÔ¶Ô pot.F ´ò Poisson-Boltzmann/FERMI_SHIFT ²¹¶¡ (dry-run) ====="patch -p0 --dry-run < /home/qizhao/src/VASPsol/patches/pbz_patch_610cd /home/qizhao/src/vasp.6.4.2_mybuild/srcecho "===== 1. ¼ì²é solvation.F ÀïÓĞÃ»ÓĞÒÑ¾­°üº¬ FERMI_SHIFT ====="grep -n "FERMI_SHIFT" solvation.Fecho "===== 2. ¿´Ò»ÏÂ²¹¶¡Àï solvation.F ÄÇ²¿·Ö¾ßÌåÒª¸ÄÊ²Ã´ ====="awk '/^--- solvation.F/,/^--- [a-zA-Z]/' /home/qizhao/src/VASPsol/patches/pbz_patch_610 | head -60echo "===== 3. ¿´Ò»ÏÂ solvation.F 2190-2230 ĞĞ¸½½üÏÖÔÚµÄÄÚÈİ ====="sed -n '2190,2230p' solvation.Fecho "===== 4. ÕıÊ½´ò mpi.F ºÍ pot.F µÄ²¹¶¡£¨ÕâÁ½¸öÄÜ³É¹¦´ò£©£¬ÏÈµ¥¶À´¦Àí solvation.F ====="patch -p0 < /home/qizhao/src/VASPsol/patches/pbz_patch_610cd /home/qizhao/src/vasp.6.4.2_mybuild/srcecho "===== 1. °Ñ mpi.F »¹Ô­»Ø´ò²¹¶¡Ç°µÄ¸É¾»×´Ì¬ ====="cp /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/mpi.F .diff mpi.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/mpi.Fecho "(ÉÏÃæÃ»Êä³ö¾ÍÊÇ»¹Ô­³É¹¦)"echo "===== 2. ÇåÀíµô²úÉúµÄ .rej ºÍ .orig ÎÄ¼ş ====="rm -f solvation.F.rej pot.F.rej mpi.F.orig solvation.F.orig pot.F.origecho "===== 3. È·ÈÏÏÖÔÚËÄ¸ö¹Ø¼üÎÄ¼şµÄ×´Ì¬ ====="echo "solvation.F ĞĞÊı£¨Ó¦Îª3270£¬ÕæÕıVASPsol°æ±¾£©:"wc -l solvation.Fecho "main.F / reader.F / pot.F / mpi.F ÊÇ·ñºÍ´ò²¹¶¡Ç°Ò»ÖÂ£¨ÎŞÊä³ö=Ò»ÖÂ£©:"diff main.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/main.Fdiff reader.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/reader.Fdiff pot.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/pot.Fecho "===== 4. ÔÚ makefile.include Àï¼ÓÉÏ -Dsol_compat ±àÒëÑ¡Ïî ====="grep -n "sol_compat" /home/qizhao/src/vasp.6.4.2_mybuild/makefile.includeecho "(Èç¹ûÉÏÃæÃ»Êä³ö£¬ËµÃ÷»¹Ã»¼Ó£¬ÎÒÃÇÏÂÒ»²½ÊÖ¶¯¼Ó)"echo "===== 5. ÔÚÕâ¸ö¸É¾»×´Ì¬ÏÂ£¬ÖØĞÂ dry-run ²âÊÔ CP-VASP µÄ cp-vaspsol.patch ====="patch -p0 --dry-run < cp-vaspsol.patchcd /home/qizhao/src/vasp.6.4.2_mybuild/srcecho "===== 0. ¼ì²éÊÇ²»ÊÇ cp ±»ÉèÖÃ³ÉÁË½»»¥Ä£Ê½ ====="alias cptype cpecho "===== 1. ÓÃ -f Ç¿ÖÆ¸²¸Ç£¬ÖØĞÂ»»³ÉÕæÕıµÄ VASPsol solvation.F£¨²»»áÔÙµ¯È·ÈÏ¿ò£©====="cp -f /home/qizhao/src/VASPsol/src/solvation.F /home/qizhao/src/vasp.6.4.2_mybuild/src/solvation.Fecho "===== 2. Á¢¿ÌÑéÖ¤ĞĞÊı£¬±ØĞëÊÇ 3270 ====="wc -l /home/qizhao/src/vasp.6.4.2_mybuild/src/solvation.Fecho "===== 3. ÇåÀí¾ÉµÄ .rej ÎÄ¼ş£¬»¹Ô­ mpi.F/pot.F µ½×îÔ­Ê¼×´Ì¬ ====="rm -f solvation.F.rej pot.F.rej mpi.F.rejcp -f /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/mpi.F /home/qizhao/src/vasp.6.4.2_mybuild/src/mpi.Fcp -f /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/pot.F /home/qizhao/src/vasp.6.4.2_mybuild/src/pot.Fecho "===== 4. ÔÙ´ÎÈ·ÈÏËÄ¸öÎÄ¼ş×´Ì¬ ====="echo "solvation.F ĞĞÊı:"wc -l solvation.Fecho "main.F/reader.F/pot.F/mpi.F ÊÇ·ñºÍ´ò²¹¶¡Ç°Ò»ÖÂ(ÎŞÊä³ö=Ò»ÖÂ):"diff main.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/main.Fdiff reader.F/home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/reader.Fdiff pot.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/pot.Fdiff mpi.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/mpi.Fecho "===== 5. ÔÚ¸É¾»×´Ì¬ÏÂÖØĞÂ dry-run ²âÊÔ CP-VASP ²¹¶¡ ====="patch -p0 --dry-run < cp-vaspsol.patchecho "===== 0. ³¹µ×È¥µô cp µÄ½»»¥È·ÈÏ£¬Õâ´ÎÓÃ unalias ½â¾ö¸ùÔ´ ====="unalias cptype cpecho "===== 1. Õû¸ö src Ä¿Â¼´Ó×î³õµÄ±¸·İÍêÕû»¹Ô­£¬»Øµ½×îÔ­Ê¼×´Ì¬ ====="rm -rf /home/qizhao/src/vasp.6.4.2_mybuild/srccp -r /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src /home/qizhao/src/vasp.6.4.2_mybuild/srcecho "===== 2. ÑéÖ¤»¹Ô­£ºsolvation.F ÏÖÔÚÓ¦¸ÃÊÇ 121 ĞĞ(¿Õ¿Ç)£¬Õâ²ÅÊÇ×îÔ­Ê¼×´Ì¬ ====="wc -l /home/qizhao/src/vasp.6.4.2_mybuild/src/solvation.Fecho "===== 3. È·ÈÏÕû¸öÄ¿Â¼ºÍ±¸·İÍêÈ«Ò»ÖÂ ====="diff -rq /home/qizhao/src/vasp.6.4.2_mybuild/src /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/srcecho "(ÉÏÃæÃ»ÓĞÈÎºÎÊä³ö£¬²ÅËµÃ÷Á½¸öÄ¿Â¼ÍêÈ«Ò»ÖÂ£¬¿ÉÒÔ¼ÌĞøÏÂÒ»²½)"cd /home/qizhao/src/vasp.6.4.2_mybuild/srcecho "===== 1. »»³ÉÕæÕıµÄ VASPsol solvation.F ====="cp /home/qizhao/src/VASPsol/src/solvation.F /home/qizhao/src/vasp.6.4.2_mybuild/src/solvation.Fwc -l /home/qizhao/src/vasp.6.4.2_mybuild/src/solvation.Fecho "===== 2. ´ò VASPsol ¹Ù·½Õë¶Ô VASP6 µÄ pbz_patch_610 ²¹¶¡ ====="patch -p0 < /home/qizhao/src/VASPsol/patches/pbz_patch_610echo "===== 3. È·ÈÏ´òÍêÖ®ºóµÄ×´Ì¬ ====="echo "--- mpi.F ºÍ±¸·İµÄ²îÒì ---"diff mpi.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/mpi.Fecho "--- pot.F ºÍ±¸·İµÄ²îÒì ---"diff pot.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/pot.Fecho "--- ÓĞÃ»ÓĞÉú³É .rej ÎÄ¼ş£¨ÓĞ¾ÍËµÃ÷²¿·ÖÃ»´òÉÏ£©---"ls *.rej 2>/dev/nullecho "(Ã»ÓĞÎÄ¼şÁĞ³öÀ´¾ÍÊÇÃ»ÓĞ .rej£¬È«²¿´ò³É¹¦ÁË)"echo "===== 4. ÔÚ makefile.include Àï¼ÓÉÏ -Dsol_compat ±àÒëÑ¡Ïî ====="grep -n "CPP_OPTIONS" /home/qizhao/src/vasp.6.4.2_mybuild/makefile.include | head -5cd /home/qizhao/src/vasp.6.4.2_mybuildecho "===== 1. ¿´ CPP_OPTIONS ÍêÕûµÄ¶àĞĞÄÚÈİ(2µ½30ĞĞ) ====="sed -n '2,30p' makefile.includeecho "===== 2. ¿´62¡¢68ĞĞ¸½½ü£¬ÒÑÓĞµÄ¿ÉÑ¡+=Ğ´·¨Ê¾Àı ====="sed -n '55,75p' makefile.includecd /home/qizhao/src/vasp.6.4.2_mybuildecho "===== 1. ±¸·İ makefile.include ====="cp makefile.include makefile.include.bak_before_sol_compatecho "===== 2. ÔÚ -Dfock_dblbuf ÄÇÒ»ĞĞÖ®ºó²åÈë CPP_OPTIONS += -Dsol_compat ====="sed -i '/^-Dfock_dblbuf$/a\CPP_OPTIONS += -Dsol_compat' makefile.includeecho "===== 3. È·ÈÏ²åÈë½á¹û ====="sed -n '1,15p' makefile.includeecho "===== 4. È·ÈÏ -Dsol_compat È·ÊµÉúĞ§ ====="grep -n "sol_compat" makefile.includecd /home/qizhao/src/vasp.6.4.2_mybuildecho "===== 1. ÓÃ cat -A ¿´ÕâÒ»ĞĞÕæÊµµÄ¿Õ°××Ö·û(ÖÆ±í·û»áÏÔÊ¾³É ^I) ====="grep -n "Dfock_dblbuf" makefile.include | cat -Aecho "===== 2. ÓÃ²»ÒÀÀµ¾ßÌå¿Õ¸ñÊıµÄĞ´·¨ÖØĞÂ²åÈë ====="sed -i '/-Dfock_dblbuf/a\CPP_OPTIONS += -Dsol_compat' makefile.includeecho "===== 3. È·ÈÏ²åÈë½á¹û ====="sed -n '1,15p' makefile.includeecho "===== 4. È·ÈÏ -Dsol_compat È·ÊµÉúĞ§£¬ÇÒÖ»³öÏÖÒ»´Î ====="grep -n "sol_compat" makefile.includecd /home/qizhao/src/vasp.6.4.2_mybuildecho "===== 1. ÔÙ´ÎÈ·ÈÏ solvation.o ÔÚ pot.o Ö®Ç° ====="grep -n "solvation.o\|pot.o" src/.objects | head -5echo "===== 2. ÇåÀí¸É¾»£¬ÖØĞÂ±àÒë ====="make verycleanulimit -s unlimitedmake std 2>&1 | tee build_realvaspsol.logecho "===== 3. ±àÒëÍê³Éºó¼ì²é×îºó20ĞĞÈÕÖ¾£¬È·ÈÏÓĞÃ»ÓĞ±¨´í ====="tail -20 build_realvaspsol.logecho "===== 1. µ±Ç°¼ÓÔØÁËÄÄĞ© module ====="module listecho "===== 2. µ±Ç° MKLROOT »·¾³±äÁ¿ ====="echo "MKLROOT = $MKLROOT"echo "===== 3. µ±Ç°Êµ¼Êµ÷ÓÃµÄ mpiifort/ifort ÊÇÄÄ¸ö°æ±¾ ====="which mpiifortwhich ifortmpiifort -V 2>&1 | head -5echo "===== 4. makefile.include Àï MKLROOT ÄÇÒ»ĞĞÊµ¼ÊÄÚÈİ ====="grep -n "MKLROOT" /home/qizhao/src/vasp.6.4.2_mybuild/makefile.includeecho "===== 1. ¿´¿´ÕâÌ¨»úÆ÷ÉÏÓĞÄÄĞ© intel °æ±¾¿ÉÑ¡ ====="module avail intel 2>&1echo "===== 2. Ğ¶ÔØ¾É°æ±¾£¬¼ÓÔØÕıÈ·µÄ 2023.1 ====="module purgemodule load intel/2023.1echo "===== 3. È·ÈÏ¼ÓÔØ¶ÔÁË ====="module listecho "MKLROOT = $MKLROOT"which mpiifortmpiifort -V 2>&1 | head -5»·¾³ÒÑ¾­ÇĞ»ØÕıÈ·µÄ intel/2023.1£¬MKLROOT ºÍ mpiifort °æ±¾¶¼¶ÔÁË¡£ÏÖÔÚÖØĞÂ±àÒë£ºcd /home/qizhao/src/vasp.6.4.2_mybuildecho "===== 1. ÇåÀíÖ®Ç°Ê§°ÜµÄ¹¹½¨²úÎï ====="make verycleanecho "===== 2. ·Å¿ªÕ»ÄÚ´æÏŞÖÆ£¬ÕıÊ½±àÒë£¨Õâ´ÎÊÇÕæÕı×°ºÃVASPsolµÄ°æ±¾£©====="ulimit -s unlimitedmake std 2>&1 | tee build_realvaspsol.logecho "===== 3. ¼ì²é±àÒëÈÕÖ¾×îºó30ĞĞ£¬È·ÈÏÓĞÃ»ÓĞ±¨´í ====="tail -30 build_realvaspsol.logecho "===== 4. ¼ì²éÊÇ·ñ³É¹¦Éú³ÉÁË¿ÉÖ´ĞĞÎÄ¼ş ====="ls -lh build/std/vaspcd /home/qizhao/src/vasp.6.4.2_mybuildecho "===== 1. È·ÈÏ±àÒëÈÕÖ¾Ä©Î²Ã»ÓĞ error ====="tail -30 build_realvaspsol.logecho "===== 2. È·ÈÏÁ´½ÓÃüÁîÀïÈ·Êµ°üº¬ solvation.o ====="grep "solvation.o" build_realvaspsol.logecho "===== 3. ±¸·İ¾ÉµÄ(¼Ù)vasp_std£¬¿½±´Õâ´ÎÕæÕı×°ÁËVASPsolµÄĞÂ°æ±¾ ====="mv bin/vasp_std bin/vasp_std_FAKE_no_real_vaspsolcp build/std/vasp bin/vasp_stdls -lh bin/echo "===== 4. »ù´¡¼ì²é£º¿ÉÖ´ĞĞ¡¢¶¯Ì¬¿âÆëÈ« ====="file bin/vasp_stdldd bin/vasp_std | grep "not found"echo "(ÉÏÃæÃ»Êä³ö=¶¯Ì¬¿â¶¼ÕÒµ½ÁË)"cd /home/qizhao/src/vasp.6.4.2_mybuildecho "===== 1. ±àÒëÈÕÖ¾×îºó30ĞĞ ====="tail -30 build_realvaspsol.logecho "===== 2. È·ÈÏÁ´½ÓÃüÁî°üº¬ solvation.o ====="grep "solvation.o" build_realvaspsol.logecho "===== 3. È·ÈÏÈÕÖ¾ÀïÍêÈ«Ã»ÓĞ error ×ÖÑù ====="grep -i "error" build_realvaspsol.logecho "(Èç¹ûÉÏÃæÓĞÊä³ö£¬°ÑÄÚÈİÒ²·¢¸øÎÒ¿´¿´ÊÇÊ²Ã´error£¬¿ÉÄÜÊÇÎŞº¦µÄ¾¯¸æ)"Õâ´ÎÊÇÕæÕı×°ºÃ VASPsol µÄ¸É¾»°æ±¾£¬±àÒë³É¹¦¡£ ÏÖÔÚ¿ªÊ¼µş¼Ó CP-VASP ²¹¶¡¡£cd /home/qizhao/src/vasp.6.4.2_mybuild/srcecho "===== 1. È·ÈÏÏÖÔÚ solvation.F ÊÇÕæÕıµÄ3270ĞĞ°æ±¾ ====="wc -l solvation.Fecho "===== 2. ÏÈ dry-run ²âÊÔ CP-VASP ²¹¶¡ ====="patch -p0 --dry-run < cp-vaspsol.patchecho "===== 3. Èç¹ûµÚ2²½Ã»ÓĞFAILED£¬ÕıÊ½´òÉÏ ====="patch -p0 < cp-vaspsol.patchecho "===== 4. ¼ì²éÓĞÃ»ÓĞÉú³É .rej ÎÄ¼ş ====="ls *.rej 2>/dev/nullecho "(Ã»ÓĞÎÄ¼şÁĞ³öÀ´=È«²¿´ò³É¹¦)"cd /home/qizhao/src/vasp.6.4.2_mybuild/srcecho "===== 1. ÖØĞÂ¸´ÖÆ cp-vaspsol.patch ½øÀ´ ====="cp "/home/qizhao/cpvasp-patch/Version 2/cp-vaspsol.patch" .ls -lh cp-vaspsol.patchecho "===== 2. È·ÈÏ solvation.F È·ÊµÊÇ3270ĞĞ ====="wc -l solvation.Fecho "===== 3. dry-run ²âÊÔ CP-VASP ²¹¶¡ ====="patch -p0 --dry-run < cp-vaspsol.patchcd /home/qizhao/src/vasp.6.4.2_mybuild/srcecho "===== 1. ÕıÊ½´òÉÏ CP-VASP ²¹¶¡ ====="patch -p0 < cp-vaspsol.patchecho "===== 2. È·ÈÏÃ»ÓĞÉú³É .rej ÎÄ¼ş ====="ls *.rej 2>/dev/nullecho "(Ã»ÓĞÎÄ¼şÁĞ³öÀ´=È«²¿´ò³É¹¦)"echo "===== 3. ¿´Ò»ÏÂÕâ´Î¸Ä¶¯ÁËÄÄĞ©ÎÄ¼ş¡¢ĞÂÔöÁË¶àÉÙÄÚÈİ ====="diff -rq . /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src | grep -v "solvation.F\|mpi.F\|pot.F\|cp-vaspsol.patch"cd /home/qizhao/src/vasp.6.4.2_mybuildecho "===== 1. È·ÈÏ»·¾³»¹ÊÇÕıÈ·µÄ intel/2023.1 ====="module listecho "MKLROOT = $MKLROOT"echo "===== 2. ÇåÀíÖØĞÂ±àÒë ====="make verycleanulimit -s unlimitedmake std 2>&1 | tee build_cpvasp.logecho "===== 3. ¼ì²é×îºó30ĞĞÈÕÖ¾ ====="tail -30 build_cpvasp.logecho "===== 4. È·ÈÏÃ»ÓĞ error ====="grep -i "error" build_cpvasp.logecho "===== 5. È·ÈÏÉú³ÉÁË¿ÉÖ´ĞĞÎÄ¼ş ====="ls -lh build/std/vaspcd /home/qizhao/src/vasp.6.4.2_mybuildecho "===== 1. ¿½±´Îª¶ÀÁ¢ÃüÃûµÄCP-VASP°æ±¾£¬²»¸²¸ÇÆÕÍ¨VASPsol°æ±¾ ====="cp build/std/vasp bin/vasp_std_cpvaspecho "===== 2. ²é¿´ÏÖÔÚbinÄ¿Â¼ÏÂ¶¼ÓĞÄÄĞ©°æ±¾ ====="ls -lh bin/echo "===== 3. »ù´¡¼ì²é ====="file bin/vasp_std_cpvaspldd bin/vasp_std_cpvasp | grep "not found"echo "(ÉÏÃæÃ»Êä³ö=¶¯Ì¬¿â¶¼ÕÒµ½ÁË)"echo "===== 4. È·ÈÏCP-VASPÏà¹ØµÄÄ¿±êÎÄ¼şÈ·ÊµÁ´½Ó½øÈ¥ÁË ====="grep -o "solvation.o\|pot.o\|main.o\|reader.o" build_cpvasp.log | sort -u±àÒëÍê³É£¬¿ÉÒÔ²âÊÔµ÷²Î
+DearÂ CP-VASPÂ users,
+â€¨We are excited to releaseÂ CP-VASPÂ 2.0! Here are some key features:
+1. Support both vaspsol and vaspsol++
+2. Flash solvation method to avoid flying water problem in MD
+3. "True" grand canonical ensemble for electron dynamics
+The patch file can be accessed here:â€¨https://drive.google.com/drive/folders/13qTSTIRgWM6RhvcxgeRISVitz7z8jJLr?usp=drive_link
+The user manual and examples are available atÂ 
+https://github.com/yuanyue-liu-group/CP-VASP/tree/main
+For any questions or feedback, please report atÂ 
+https://github.com/yuanyue-liu-group/CP-VASP/issues
+Sincerely,â€¨YuanyueÂ LiuÂ groupâ€¨The University of Texas at Austinâ€¨https://sites.utexas.edu/yuanyue-liu/
+
+HPCå…·ä½“å®‰è£…æŒ‡ä»¤ï¼š
+
+cd /home/qizhao/src
+git clone https://github.com/henniggroup/VASPsol.git
+echo "===== ç¡®è®¤æ–‡ä»¶å­˜åœ¨ ====="
+ls -lh VASPsol/src/solvation.F
+echo "===== æŸ¥çœ‹æœ‰å“ªäº›ç‰ˆæœ¬è¡¥ä¸ ====="
+ls VASPsol/patches/
+echo "===== çœŸæ­£çš„ solvation.F è¡Œæ•° ====="
+wc -l VASPsol/src/solvation.F
+cd /home/qizhao/src/vasp.6.4.2_mybuild/src
+
+echo "===== 1. å¤‡ä»½å½“å‰(ç©ºå£³)solvation.F ====="
+cp solvation.F solvation.F.stub_backup
+
+echo "===== 2. æ¢æˆçœŸæ­£çš„ VASPsol ç‰ˆæœ¬ ====="
+cp /home/qizhao/src/VASPsol/src/solvation.F .
+wc -l solvation.F
+
+echo "===== 3. æ£€æŸ¥æœ‰æ²¡æœ‰ sol_compat ç¼–è¯‘é€‰é¡¹ ====="
+grep -n "sol_compat" /home/qizhao/src/vasp.6.4.2_mybuild/arch/*.include 2>/dev/null
+grep -rn "sol_compat" /home/qizhao/src/vasp.6.4.2_mybuild/makefile.include 2>/dev/null
+
+echo "===== 4. æ£€æŸ¥ solvation.o åœ¨ pot.o ä¹‹å‰ ====="
+grep -n "solvation.o\|pot.o" /home/qizhao/src/vasp.6.4.2_mybuild/src/.objects | head -20
+
+echo "===== 5. å°è¯•å¯¹ pot.F æ‰“ Poisson-Boltzmann/FERMI_SHIFT è¡¥ä¸ (dry-run) ====="
+patch -p0 --dry-run < /home/qizhao/src/VASPsol/patches/pbz_patch_610
+cd /home/qizhao/src/vasp.6.4.2_mybuild/src
+
+echo "===== 1. æ£€æŸ¥ solvation.F é‡Œæœ‰æ²¡æœ‰å·²ç»åŒ…å« FERMI_SHIFT ====="
+grep -n "FERMI_SHIFT" solvation.F
+
+echo "===== 2. çœ‹ä¸€ä¸‹è¡¥ä¸é‡Œ solvation.F é‚£éƒ¨åˆ†å…·ä½“è¦æ”¹ä»€ä¹ˆ ====="
+awk '/^--- solvation.F/,/^--- [a-zA-Z]/' /home/qizhao/src/VASPsol/patches/pbz_patch_610 | head -60
+
+echo "===== 3. çœ‹ä¸€ä¸‹ solvation.F 2190-2230 è¡Œé™„è¿‘ç°åœ¨çš„å†…å®¹ ====="
+sed -n '2190,2230p' solvation.F
+
+echo "===== 4. æ­£å¼æ‰“ mpi.F å’Œ pot.F çš„è¡¥ä¸ï¼ˆè¿™ä¸¤ä¸ªèƒ½æˆåŠŸæ‰“ï¼‰ï¼Œå…ˆå•ç‹¬å¤„ç† solvation.F ====="
+patch -p0 < /home/qizhao/src/VASPsol/patches/pbz_patch_610
+cd /home/qizhao/src/vasp.6.4.2_mybuild/src
+
+echo "===== 1. æŠŠ mpi.F è¿˜åŸå›æ‰“è¡¥ä¸å‰çš„å¹²å‡€çŠ¶æ€ ====="
+cp /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/mpi.F .
+diff mpi.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/mpi.F
+echo "(ä¸Šé¢æ²¡è¾“å‡ºå°±æ˜¯è¿˜åŸæˆåŠŸ)"
+
+echo "===== 2. æ¸…ç†æ‰äº§ç”Ÿçš„ .rej å’Œ .orig æ–‡ä»¶ ====="
+rm -f solvation.F.rej pot.F.rej mpi.F.orig solvation.F.orig pot.F.orig
+
+echo "===== 3. ç¡®è®¤ç°åœ¨å››ä¸ªå…³é”®æ–‡ä»¶çš„çŠ¶æ€ ====="
+echo "solvation.F è¡Œæ•°ï¼ˆåº”ä¸º3270ï¼ŒçœŸæ­£VASPsolç‰ˆæœ¬ï¼‰:"
+wc -l solvation.F
+echo "main.F / reader.F / pot.F / mpi.F æ˜¯å¦å’Œæ‰“è¡¥ä¸å‰ä¸€è‡´ï¼ˆæ— è¾“å‡º=ä¸€è‡´ï¼‰:"
+diff main.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/main.F
+diff reader.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/reader.F
+diff pot.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/pot.F
+
+echo "===== 4. åœ¨ makefile.include é‡ŒåŠ ä¸Š -Dsol_compat ç¼–è¯‘é€‰é¡¹ ====="
+grep -n "sol_compat" /home/qizhao/src/vasp.6.4.2_mybuild/makefile.include
+echo "(å¦‚æœä¸Šé¢æ²¡è¾“å‡ºï¼Œè¯´æ˜è¿˜æ²¡åŠ ï¼Œæˆ‘ä»¬ä¸‹ä¸€æ­¥æ‰‹åŠ¨åŠ )"
+
+echo "===== 5. åœ¨è¿™ä¸ªå¹²å‡€çŠ¶æ€ä¸‹ï¼Œé‡æ–° dry-run æµ‹è¯• CP-VASP çš„ cp-vaspsol.patch ====="
+patch -p0 --dry-run < cp-vaspsol.patch
+cd /home/qizhao/src/vasp.6.4.2_mybuild/src
+
+echo "===== 0. æ£€æŸ¥æ˜¯ä¸æ˜¯ cp è¢«è®¾ç½®æˆäº†äº¤äº’æ¨¡å¼ ====="
+alias cp
+type cp
+
+echo "===== 1. ç”¨ -f å¼ºåˆ¶è¦†ç›–ï¼Œé‡æ–°æ¢æˆçœŸæ­£çš„ VASPsol solvation.Fï¼ˆä¸ä¼šå†å¼¹ç¡®è®¤æ¡†ï¼‰====="
+cp -f /home/qizhao/src/VASPsol/src/solvation.F /home/qizhao/src/vasp.6.4.2_mybuild/src/solvation.F
+
+echo "===== 2. ç«‹åˆ»éªŒè¯è¡Œæ•°ï¼Œå¿…é¡»æ˜¯ 3270 ====="
+wc -l /home/qizhao/src/vasp.6.4.2_mybuild/src/solvation.F
+
+echo "===== 3. æ¸…ç†æ—§çš„ .rej æ–‡ä»¶ï¼Œè¿˜åŸ mpi.F/pot.F åˆ°æœ€åŸå§‹çŠ¶æ€ ====="
+rm -f solvation.F.rej pot.F.rej mpi.F.rej
+cp -f /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/mpi.F /home/qizhao/src/vasp.6.4.2_mybuild/src/mpi.F
+cp -f /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/pot.F /home/qizhao/src/vasp.6.4.2_mybuild/src/pot.F
+
+echo "===== 4. å†æ¬¡ç¡®è®¤å››ä¸ªæ–‡ä»¶çŠ¶æ€ ====="
+echo "solvation.F è¡Œæ•°:"
+wc -l solvation.F
+echo "main.F/reader.F/pot.F/mpi.F æ˜¯å¦å’Œæ‰“è¡¥ä¸å‰ä¸€è‡´(æ— è¾“å‡º=ä¸€è‡´):"
+diff main.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/main.F
+diff reader.F/home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/reader.F
+diff pot.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/pot.F
+diff mpi.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/mpi.F
+
+echo "===== 5. åœ¨å¹²å‡€çŠ¶æ€ä¸‹é‡æ–° dry-run æµ‹è¯• CP-VASP è¡¥ä¸ ====="
+patch -p0 --dry-run < cp-vaspsol.patch
+echo "===== 0. å½»åº•å»æ‰ cp çš„äº¤äº’ç¡®è®¤ï¼Œè¿™æ¬¡ç”¨ unalias è§£å†³æ ¹æº ====="
+unalias cp
+type cp
+
+echo "===== 1. æ•´ä¸ª src ç›®å½•ä»æœ€åˆçš„å¤‡ä»½å®Œæ•´è¿˜åŸï¼Œå›åˆ°æœ€åŸå§‹çŠ¶æ€ ====="
+rm -rf /home/qizhao/src/vasp.6.4.2_mybuild/src
+cp -r /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src /home/qizhao/src/vasp.6.4.2_mybuild/src
+
+echo "===== 2. éªŒè¯è¿˜åŸï¼šsolvation.F ç°åœ¨åº”è¯¥æ˜¯ 121 è¡Œ(ç©ºå£³)ï¼Œè¿™æ‰æ˜¯æœ€åŸå§‹çŠ¶æ€ ====="
+wc -l /home/qizhao/src/vasp.6.4.2_mybuild/src/solvation.F
+
+echo "===== 3. ç¡®è®¤æ•´ä¸ªç›®å½•å’Œå¤‡ä»½å®Œå…¨ä¸€è‡´ ====="
+diff -rq /home/qizhao/src/vasp.6.4.2_mybuild/src /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src
+echo "(ä¸Šé¢æ²¡æœ‰ä»»ä½•è¾“å‡ºï¼Œæ‰è¯´æ˜ä¸¤ä¸ªç›®å½•å®Œå…¨ä¸€è‡´ï¼Œå¯ä»¥ç»§ç»­ä¸‹ä¸€æ­¥)"
+cd /home/qizhao/src/vasp.6.4.2_mybuild/src
+
+echo "===== 1. æ¢æˆçœŸæ­£çš„ VASPsol solvation.F ====="
+cp /home/qizhao/src/VASPsol/src/solvation.F /home/qizhao/src/vasp.6.4.2_mybuild/src/solvation.F
+wc -l /home/qizhao/src/vasp.6.4.2_mybuild/src/solvation.F
+
+echo "===== 2. æ‰“ VASPsol å®˜æ–¹é’ˆå¯¹ VASP6 çš„ pbz_patch_610 è¡¥ä¸ ====="
+patch -p0 < /home/qizhao/src/VASPsol/patches/pbz_patch_610
+
+echo "===== 3. ç¡®è®¤æ‰“å®Œä¹‹åçš„çŠ¶æ€ ====="
+echo "--- mpi.F å’Œå¤‡ä»½çš„å·®å¼‚ ---"
+diff mpi.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/mpi.F
+echo "--- pot.F å’Œå¤‡ä»½çš„å·®å¼‚ ---"
+diff pot.F /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src/pot.F
+echo "--- æœ‰æ²¡æœ‰ç”Ÿæˆ .rej æ–‡ä»¶ï¼ˆæœ‰å°±è¯´æ˜éƒ¨åˆ†æ²¡æ‰“ä¸Šï¼‰---"
+ls *.rej 2>/dev/null
+echo "(æ²¡æœ‰æ–‡ä»¶åˆ—å‡ºæ¥å°±æ˜¯æ²¡æœ‰ .rejï¼Œå…¨éƒ¨æ‰“æˆåŠŸäº†)"
+
+echo "===== 4. åœ¨ makefile.include é‡ŒåŠ ä¸Š -Dsol_compat ç¼–è¯‘é€‰é¡¹ ====="
+grep -n "CPP_OPTIONS" /home/qizhao/src/vasp.6.4.2_mybuild/makefile.include | head -5
+cd /home/qizhao/src/vasp.6.4.2_mybuild
+
+echo "===== 1. çœ‹ CPP_OPTIONS å®Œæ•´çš„å¤šè¡Œå†…å®¹(2åˆ°30è¡Œ) ====="
+sed -n '2,30p' makefile.include
+
+echo "===== 2. çœ‹62ã€68è¡Œé™„è¿‘ï¼Œå·²æœ‰çš„å¯é€‰+=å†™æ³•ç¤ºä¾‹ ====="
+sed -n '55,75p' makefile.include
+cd /home/qizhao/src/vasp.6.4.2_mybuild
+
+echo "===== 1. å¤‡ä»½ makefile.include ====="
+cp makefile.include makefile.include.bak_before_sol_compat
+
+echo "===== 2. åœ¨ -Dfock_dblbuf é‚£ä¸€è¡Œä¹‹åæ’å…¥ CPP_OPTIONS += -Dsol_compat ====="
+sed -i '/^-Dfock_dblbuf$/a\CPP_OPTIONS += -Dsol_compat' makefile.include
+
+echo "===== 3. ç¡®è®¤æ’å…¥ç»“æœ ====="
+sed -n '1,15p' makefile.include
+
+echo "===== 4. ç¡®è®¤ -Dsol_compat ç¡®å®ç”Ÿæ•ˆ ====="
+grep -n "sol_compat" makefile.include
+cd /home/qizhao/src/vasp.6.4.2_mybuild
+
+echo "===== 1. ç”¨ cat -A çœ‹è¿™ä¸€è¡ŒçœŸå®çš„ç©ºç™½å­—ç¬¦(åˆ¶è¡¨ç¬¦ä¼šæ˜¾ç¤ºæˆ ^I) ====="
+grep -n "Dfock_dblbuf" makefile.include | cat -A
+
+echo "===== 2. ç”¨ä¸ä¾èµ–å…·ä½“ç©ºæ ¼æ•°çš„å†™æ³•é‡æ–°æ’å…¥ ====="
+sed -i '/-Dfock_dblbuf/a\CPP_OPTIONS += -Dsol_compat' makefile.include
+
+echo "===== 3. ç¡®è®¤æ’å…¥ç»“æœ ====="
+sed -n '1,15p' makefile.include
+
+echo "===== 4. ç¡®è®¤ -Dsol_compat ç¡®å®ç”Ÿæ•ˆï¼Œä¸”åªå‡ºç°ä¸€æ¬¡ ====="
+grep -n "sol_compat" makefile.include
+cd /home/qizhao/src/vasp.6.4.2_mybuild
+
+echo "===== 1. å†æ¬¡ç¡®è®¤ solvation.o åœ¨ pot.o ä¹‹å‰ ====="
+grep -n "solvation.o\|pot.o" src/.objects | head -5
+
+echo "===== 2. æ¸…ç†å¹²å‡€ï¼Œé‡æ–°ç¼–è¯‘ ====="
+make veryclean
+ulimit -s unlimited
+make std 2>&1 | tee build_realvaspsol.log
+
+echo "===== 3. ç¼–è¯‘å®Œæˆåæ£€æŸ¥æœ€å20è¡Œæ—¥å¿—ï¼Œç¡®è®¤æœ‰æ²¡æœ‰æŠ¥é”™ ====="
+tail -20 build_realvaspsol.log
+echo "===== 1. å½“å‰åŠ è½½äº†å“ªäº› module ====="
+module list
+
+echo "===== 2. å½“å‰ MKLROOT ç¯å¢ƒå˜é‡ ====="
+echo "MKLROOT = $MKLROOT"
+
+echo "===== 3. å½“å‰å®é™…è°ƒç”¨çš„ mpiifort/ifort æ˜¯å“ªä¸ªç‰ˆæœ¬ ====="
+which mpiifort
+which ifort
+mpiifort -V 2>&1 | head -5
+
+echo "===== 4. makefile.include é‡Œ MKLROOT é‚£ä¸€è¡Œå®é™…å†…å®¹ ====="
+grep -n "MKLROOT" /home/qizhao/src/vasp.6.4.2_mybuild/makefile.include
+echo "===== 1. çœ‹çœ‹è¿™å°æœºå™¨ä¸Šæœ‰å“ªäº› intel ç‰ˆæœ¬å¯é€‰ ====="
+module avail intel 2>&1
+
+echo "===== 2. å¸è½½æ—§ç‰ˆæœ¬ï¼ŒåŠ è½½æ­£ç¡®çš„ 2023.1 ====="
+module purge
+module load intel/2023.1
+
+echo "===== 3. ç¡®è®¤åŠ è½½å¯¹äº† ====="
+module list
+echo "MKLROOT = $MKLROOT"
+which mpiifort
+mpiifort -V 2>&1 | head -5
+ç¯å¢ƒå·²ç»åˆ‡å›æ­£ç¡®çš„ intel/2023.1ï¼ŒMKLROOT å’Œ mpiifort ç‰ˆæœ¬éƒ½å¯¹äº†ã€‚ç°åœ¨é‡æ–°ç¼–è¯‘ï¼š
+cd /home/qizhao/src/vasp.6.4.2_mybuild
+
+echo "===== 1. æ¸…ç†ä¹‹å‰å¤±è´¥çš„æ„å»ºäº§ç‰© ====="
+make veryclean
+
+echo "===== 2. æ”¾å¼€æ ˆå†…å­˜é™åˆ¶ï¼Œæ­£å¼ç¼–è¯‘ï¼ˆè¿™æ¬¡æ˜¯çœŸæ­£è£…å¥½VASPsolçš„ç‰ˆæœ¬ï¼‰====="
+ulimit -s unlimited
+make std 2>&1 | tee build_realvaspsol.log
+
+echo "===== 3. æ£€æŸ¥ç¼–è¯‘æ—¥å¿—æœ€å30è¡Œï¼Œç¡®è®¤æœ‰æ²¡æœ‰æŠ¥é”™ ====="
+tail -30 build_realvaspsol.log
+
+echo "===== 4. æ£€æŸ¥æ˜¯å¦æˆåŠŸç”Ÿæˆäº†å¯æ‰§è¡Œæ–‡ä»¶ ====="
+ls -lh build/std/vasp
+cd /home/qizhao/src/vasp.6.4.2_mybuild
+
+echo "===== 1. ç¡®è®¤ç¼–è¯‘æ—¥å¿—æœ«å°¾æ²¡æœ‰ error ====="
+tail -30 build_realvaspsol.log
+
+echo "===== 2. ç¡®è®¤é“¾æ¥å‘½ä»¤é‡Œç¡®å®åŒ…å« solvation.o ====="
+grep "solvation.o" build_realvaspsol.log
+
+echo "===== 3. å¤‡ä»½æ—§çš„(å‡)vasp_stdï¼Œæ‹·è´è¿™æ¬¡çœŸæ­£è£…äº†VASPsolçš„æ–°ç‰ˆæœ¬ ====="
+mv bin/vasp_std bin/vasp_std_FAKE_no_real_vaspsol
+cp build/std/vasp bin/vasp_std
+ls -lh bin/
+
+echo "===== 4. åŸºç¡€æ£€æŸ¥ï¼šå¯æ‰§è¡Œã€åŠ¨æ€åº“é½å…¨ ====="
+file bin/vasp_std
+ldd bin/vasp_std | grep "not found"
+echo "(ä¸Šé¢æ²¡è¾“å‡º=åŠ¨æ€åº“éƒ½æ‰¾åˆ°äº†)"
+cd /home/qizhao/src/vasp.6.4.2_mybuild
+
+echo "===== 1. ç¼–è¯‘æ—¥å¿—æœ€å30è¡Œ ====="
+tail -30 build_realvaspsol.log
+
+echo "===== 2. ç¡®è®¤é“¾æ¥å‘½ä»¤åŒ…å« solvation.o ====="
+grep "solvation.o" build_realvaspsol.log
+
+echo "===== 3. ç¡®è®¤æ—¥å¿—é‡Œå®Œå…¨æ²¡æœ‰ error å­—æ · ====="
+grep -i "error" build_realvaspsol.log
+echo "(å¦‚æœä¸Šé¢æœ‰è¾“å‡ºï¼ŒæŠŠå†…å®¹ä¹Ÿå‘ç»™æˆ‘çœ‹çœ‹æ˜¯ä»€ä¹ˆerrorï¼Œå¯èƒ½æ˜¯æ— å®³çš„è­¦å‘Š)"
+è¿™æ¬¡æ˜¯çœŸæ­£è£…å¥½ VASPsol çš„å¹²å‡€ç‰ˆæœ¬ï¼Œç¼–è¯‘æˆåŠŸã€‚ ç°åœ¨å¼€å§‹å åŠ  CP-VASP è¡¥ä¸ã€‚
+cd /home/qizhao/src/vasp.6.4.2_mybuild/src
+
+echo "===== 1. ç¡®è®¤ç°åœ¨ solvation.F æ˜¯çœŸæ­£çš„3270è¡Œç‰ˆæœ¬ ====="
+wc -l solvation.F
+
+echo "===== 2. å…ˆ dry-run æµ‹è¯• CP-VASP è¡¥ä¸ ====="
+patch -p0 --dry-run < cp-vaspsol.patch
+
+echo "===== 3. å¦‚æœç¬¬2æ­¥æ²¡æœ‰FAILEDï¼Œæ­£å¼æ‰“ä¸Š ====="
+patch -p0 < cp-vaspsol.patch
+
+echo "===== 4. æ£€æŸ¥æœ‰æ²¡æœ‰ç”Ÿæˆ .rej æ–‡ä»¶ ====="
+ls *.rej 2>/dev/null
+echo "(æ²¡æœ‰æ–‡ä»¶åˆ—å‡ºæ¥=å…¨éƒ¨æ‰“æˆåŠŸ)"
+cd /home/qizhao/src/vasp.6.4.2_mybuild/src
+
+echo "===== 1. é‡æ–°å¤åˆ¶ cp-vaspsol.patch è¿›æ¥ ====="
+cp "/home/qizhao/cpvasp-patch/Version 2/cp-vaspsol.patch" .
+ls -lh cp-vaspsol.patch
+
+echo "===== 2. ç¡®è®¤ solvation.F ç¡®å®æ˜¯3270è¡Œ ====="
+wc -l solvation.F
+
+echo "===== 3. dry-run æµ‹è¯• CP-VASP è¡¥ä¸ ====="
+patch -p0 --dry-run < cp-vaspsol.patch
+cd /home/qizhao/src/vasp.6.4.2_mybuild/src
+
+echo "===== 1. æ­£å¼æ‰“ä¸Š CP-VASP è¡¥ä¸ ====="
+patch -p0 < cp-vaspsol.patch
+
+echo "===== 2. ç¡®è®¤æ²¡æœ‰ç”Ÿæˆ .rej æ–‡ä»¶ ====="
+ls *.rej 2>/dev/null
+echo "(æ²¡æœ‰æ–‡ä»¶åˆ—å‡ºæ¥=å…¨éƒ¨æ‰“æˆåŠŸ)"
+
+echo "===== 3. çœ‹ä¸€ä¸‹è¿™æ¬¡æ”¹åŠ¨äº†å“ªäº›æ–‡ä»¶ã€æ–°å¢äº†å¤šå°‘å†…å®¹ ====="
+diff -rq . /home/qizhao/src/vasp.6.4.2_mybuild_backup_before_cpvasp/src | grep -v "solvation.F\|mpi.F\|pot.F\|cp-vaspsol.patch"
+cd /home/qizhao/src/vasp.6.4.2_mybuild
+
+echo "===== 1. ç¡®è®¤ç¯å¢ƒè¿˜æ˜¯æ­£ç¡®çš„ intel/2023.1 ====="
+module list
+echo "MKLROOT = $MKLROOT"
+
+echo "===== 2. æ¸…ç†é‡æ–°ç¼–è¯‘ ====="
+make veryclean
+ulimit -s unlimited
+make std 2>&1 | tee build_cpvasp.log
+
+echo "===== 3. æ£€æŸ¥æœ€å30è¡Œæ—¥å¿— ====="
+tail -30 build_cpvasp.log
+
+echo "===== 4. ç¡®è®¤æ²¡æœ‰ error ====="
+grep -i "error" build_cpvasp.log
+
+echo "===== 5. ç¡®è®¤ç”Ÿæˆäº†å¯æ‰§è¡Œæ–‡ä»¶ ====="
+ls -lh build/std/vasp
+cd /home/qizhao/src/vasp.6.4.2_mybuild
+
+echo "===== 1. æ‹·è´ä¸ºç‹¬ç«‹å‘½åçš„CP-VASPç‰ˆæœ¬ï¼Œä¸è¦†ç›–æ™®é€šVASPsolç‰ˆæœ¬ ====="
+cp build/std/vasp bin/vasp_std_cpvasp
+
+echo "===== 2. æŸ¥çœ‹ç°åœ¨binç›®å½•ä¸‹éƒ½æœ‰å“ªäº›ç‰ˆæœ¬ ====="
+ls -lh bin/
+
+echo "===== 3. åŸºç¡€æ£€æŸ¥ ====="
+file bin/vasp_std_cpvasp
+ldd bin/vasp_std_cpvasp | grep "not found"
+echo "(ä¸Šé¢æ²¡è¾“å‡º=åŠ¨æ€åº“éƒ½æ‰¾åˆ°äº†)"
+
+echo "===== 4. ç¡®è®¤CP-VASPç›¸å…³çš„ç›®æ ‡æ–‡ä»¶ç¡®å®é“¾æ¥è¿›å»äº† ====="
+grep -o "solvation.o\|pot.o\|main.o\|reader.o" build_cpvasp.log | sort -u
+ç¼–è¯‘å®Œæˆï¼Œå¯ä»¥æµ‹è¯•è°ƒå‚
+
+
+
+
+
+
+
+
+
